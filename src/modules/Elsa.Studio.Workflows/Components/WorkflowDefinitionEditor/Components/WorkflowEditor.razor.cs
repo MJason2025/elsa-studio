@@ -13,6 +13,7 @@ using Elsa.Studio.Workflows.Domain.Contracts;
 using Elsa.Studio.Workflows.Domain.Models;
 using Elsa.Studio.Workflows.Domain.Notifications;
 using Elsa.Studio.Workflows.Models;
+using Elsa.Studio.Workflows.Services;
 using Elsa.Studio.Workflows.Shared.Components;
 using Elsa.Studio.Workflows.UI.Contracts;
 using Humanizer;
@@ -70,6 +71,7 @@ public partial class WorkflowEditor : WorkflowEditorComponentBase, INotification
     [Inject] private ILogger<WorkflowDefinitionEditor> Logger { get; set; } = null!;
     [Inject] private IWorkflowJsonDetector WorkflowJsonDetector { get; set; } = null!;
     [Inject] private IBackendApiClientProvider BackendApiClientProvider { get; set; } = null!;
+    [Inject] private IPanelStateService PanelStateService { get; set; } = null!;
 
     private JsonObject? Activity => _workflowDefinition?.Root;
     private JsonObject? SelectedActivity { get; set; }
@@ -99,6 +101,9 @@ public partial class WorkflowEditor : WorkflowEditorComponentBase, INotification
     protected override async Task OnInitializedAsync()
     {
         Mediator.Subscribe<ImportedWorkflowDefinition>(this);
+        
+        // Subscribe to panel state changes
+        PanelStateService.PanelStateChanged += OnPanelStateChanged;
         
         _workflowDefinition = WorkflowDefinition;
 
@@ -132,10 +137,16 @@ public partial class WorkflowEditor : WorkflowEditorComponentBase, INotification
             await UpdateActivityPropertiesVisibleHeightAsync();
     }
 
+    private void OnPanelStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {
         Mediator.Unsubscribe(this);
+        PanelStateService.PanelStateChanged -= OnPanelStateChanged;
         _rateLimitedSaveChangesAsync.Dispose();
     }    
 
@@ -260,6 +271,10 @@ public partial class WorkflowEditor : WorkflowEditorComponentBase, INotification
 
     private async Task UpdateActivityPropertiesVisibleHeightAsync()
     {
+        // Chỉ cập nhật height khi pane không bị collapsed
+        if (ActivityPropertiesPane.Collapsed)
+            return;
+            
         var paneQuerySelector = $"#{ActivityPropertiesPane.UniqueID}";
         var visibleHeight = await DomAccessor.GetVisibleHeightAsync(paneQuerySelector);
         _activityPropertiesPaneHeight = (int)visibleHeight - 50;
@@ -331,6 +346,7 @@ public partial class WorkflowEditor : WorkflowEditorComponentBase, INotification
     private async Task OnResize(RadzenSplitterResizeEventArgs arg)
     {
         await UpdateActivityPropertiesVisibleHeightAsync();
+        
     }
 
     private async Task OnAutoSaveChanged(bool? value)
@@ -340,7 +356,12 @@ public partial class WorkflowEditor : WorkflowEditorComponentBase, INotification
         if (_autoSave)
             await SaveChangesAsync(true, false, false);
     }
-
+    
+    private void OnToggleAllPanelsChanged(bool? value)
+    {
+        PanelStateService.AreAllPanelsCollapsed = value ?? false;
+    }
+    
     private async Task OnExportClicked()
     {
         var download = await WorkflowDefinitionEditorService.ExportAsync(_workflowDefinition!);

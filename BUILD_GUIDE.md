@@ -187,3 +187,9 @@ Project hỗ trợ Visual Studio 2022 với workload:
 ---
 
 **Cập nhật lần cuối**: July 8, 2025
+
+
+ dotnet run --url "http://localhost:6001" --framework net
+9.0
+
+cd /Users/user/Desktop/WORK/CODE/elsa-github/elsa-studio && dotnet run --project src/hosts/Elsa.Studio.Host.Server/Elsa.Studio.Host.Server.csproj --framework net9.0

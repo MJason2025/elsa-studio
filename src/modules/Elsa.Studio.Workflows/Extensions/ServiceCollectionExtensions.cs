@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWidget, WorkflowDefinitionInfoWidget>();
         services.AddScoped<IActivityPickerComponentProvider, AccordionActivityPickerComponentProvider>();
         services.AddScoped<ICreateWorkflowDialogComponentProvider, DefaultCreateWorkflowDialogComponentProvider>();
+        services.AddScoped<IPanelStateService, DefaultPanelStateService>();
 
         return services;
     }

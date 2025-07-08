@@ -4,6 +4,7 @@ using Elsa.Api.Client.Shared.Models;
 using Elsa.Studio.Contracts;
 using Elsa.Studio.Workflows.Domain.Contracts;
 using Elsa.Studio.Workflows.Extensions;
+using Elsa.Studio.Workflows.Services;
 using Elsa.Studio.Workflows.UI.Contracts;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -11,11 +12,13 @@ using MudBlazor;
 namespace Elsa.Studio.Workflows.Components.WorkflowDefinitionEditor.Components;
 
 /// A workspace for editing a workflow definition.
-public partial class WorkflowDefinitionWorkspace : IWorkspace
+public partial class WorkflowDefinitionWorkspace : IWorkspace, IDisposable
 {
     private MudDynamicTabs _dynamicTabs = null!;
     private WorkflowDefinition? _workflowDefinition = null!;
     private WorkflowDefinition? _selectedWorkflowDefinition = null!;
+    
+    [Inject] private IPanelStateService PanelStateService { get; set; } = default!;
     
     /// Gets or sets the workflow definition to edit.
     [Parameter] public WorkflowDefinition WorkflowDefinition { get; set; } = null!;
@@ -55,6 +58,9 @@ public partial class WorkflowDefinitionWorkspace : IWorkspace
     {
         _workflowDefinition = WorkflowDefinition;
         _selectedWorkflowDefinition = SelectedWorkflowDefinition;
+        
+        // Subscribe to panel state changes
+        PanelStateService.PanelStateChanged += OnPanelStateChanged;
     }
 
     /// <inheritdoc />
@@ -120,5 +126,15 @@ public partial class WorkflowDefinitionWorkspace : IWorkspace
 
         if (WorkflowDefinitionUpdated != null)
             await WorkflowDefinitionUpdated();
+    }
+    
+    private void OnPanelStateChanged()
+    {
+        StateHasChanged();
+    }
+    
+    public void Dispose()
+    {
+        PanelStateService.PanelStateChanged -= OnPanelStateChanged;
     }
 }

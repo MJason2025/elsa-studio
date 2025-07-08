@@ -5,6 +5,7 @@ using Elsa.Api.Client.Resources.WorkflowDefinitions.Models;
 using Elsa.Api.Client.Shared.Models;
 using Elsa.Studio.DomInterop.Contracts;
 using Elsa.Studio.Workflows.Domain.Contracts;
+using Elsa.Studio.Workflows.Services;
 using Elsa.Studio.Workflows.Shared.Components;
 using Elsa.Studio.Workflows.UI.Contracts;
 using Humanizer;
@@ -35,6 +36,7 @@ public partial class WorkflowDefinitionVersionViewer
     [Inject] private IDiagramDesignerService DiagramDesignerService { get; set; } = default!;
     [Inject] private IDomAccessor DomAccessor { get; set; } = default!;
     [Inject] private IFiles Files { get; set; } = default!;
+    [Inject] private IPanelStateService PanelStateService { get; set; } = default!;
 
     private JsonObject? Activity => _workflowDefinition?.Root;
     private JsonObject? SelectedActivity { get; set; }

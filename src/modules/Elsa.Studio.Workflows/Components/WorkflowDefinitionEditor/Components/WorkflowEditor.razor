@@ -1,6 +1,8 @@
 @using Elsa.Studio.Workflows.Components.WorkflowDefinitionEditor.Components.ActivityProperties
 @using Orientation = Radzen.Orientation
 @using Variant = MudBlazor.Variant
+@using Radzen.Blazor
+@using Elsa.Studio.Workflows.Services
 @inherits WorkflowEditorComponentBase
 @inject ILocalizer Localizer
 
@@ -15,6 +17,7 @@
             GraphUpdated="@OnGraphUpdated"
             ActivityUpdated="@OnActivityUpdated">
             <CustomToolbarItems>
+                <MudSwitch T="bool?" Value="@PanelStateService.AreAllPanelsCollapsed" Color="Color.Info" Label="@Localizer["Collapse all panels"]" LabelPosition="LabelPosition.Start" ValueChanged="@OnToggleAllPanelsChanged" />
                 <MudSwitch T="bool?" Value="@_autoSave" Color="Color.Primary" Label="@Localizer["Auto-save"]" LabelPosition="LabelPosition.Start" ValueChanged="@OnAutoSaveChanged" />
                 <MudTooltip Text="@Localizer["Save"]" Delay="1000">
                     <MudBadge Color="@(_isDirty ? Color.Warning : Color.Success)" Dot="true" Overlap="true" Origin="Origin.BottomRight" Bordered="true" Class="elsa-toolbar-icon">
@@ -50,7 +53,7 @@
             </CustomToolbarItems>
         </DiagramDesignerWrapper>
     </RadzenSplitterPane>
-    <RadzenSplitterPane Size="30%" @ref="ActivityPropertiesPane">
+    <RadzenSplitterPane Size="30%" Collapsible="true" Collapsed="@PanelStateService.AreAllPanelsCollapsed" @ref="ActivityPropertiesPane">
         <ActivityPropertiesPanel @ref="ActivityPropertiesPanel" WorkflowDefinition="@_workflowDefinition" Activity="@SelectedActivity" ActivityDescriptor="@ActivityDescriptor" OnActivityUpdated="@OnSelectedActivityUpdated" VisiblePaneHeight="@_activityPropertiesPaneHeight"/>
     </RadzenSplitterPane>
 </RadzenSplitter>

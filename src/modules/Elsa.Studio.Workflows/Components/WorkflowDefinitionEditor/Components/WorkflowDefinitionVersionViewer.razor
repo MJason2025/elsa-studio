@@ -17,7 +17,7 @@
             </CustomToolbarItems>
         </DiagramDesignerWrapper>
     </RadzenSplitterPane>
-    <RadzenSplitterPane Size="30%" @ref="ActivityPropertiesPane">
+    <RadzenSplitterPane Size="30%" Collapsed="@PanelStateService.AreAllPanelsCollapsed" @ref="ActivityPropertiesPane">
         <ActivityPropertiesPanel @ref="ActivityPropertiesTab" WorkflowDefinition="@_workflowDefinition" Activity="@SelectedActivity" ActivityDescriptor="@ActivityDescriptor" OnActivityUpdated="@OnSelectedActivityUpdated" VisiblePaneHeight="@_activityPropertiesPaneHeight"/>
     </RadzenSplitterPane>
 </RadzenSplitter>
